@@ -2,11 +2,11 @@ require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const { Pool } = require("pg"); 
+const { Pool } = require("pg");
 const cors = require("cors");
 
 const app = express();
-app.use(cors()); 
+app.use(cors());
 app.use(bodyParser.json());
 
 
@@ -30,7 +30,8 @@ app.post("/api/dados", async (req, res) => {
     await pool.query(query, values);
     res.status(200).send("OK");
   } catch (err) {
-    console.error(err.message);
+    console.error("--- ERRO DETALHADO ---");
+    console.error(err);
     res.status(500).send("Erro ao salvar dados");
   }
 });
@@ -40,8 +41,9 @@ app.get("/api/dados", async (req, res) => {
     const result = await pool.query("SELECT * FROM leituras ORDER BY id DESC");
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send(err.message);
+    console.error("--- ERRO DETALHADO ---");
+    console.error(err);
+    res.status(500).send("Erro ao salvar dados");
   }
 });
 
@@ -53,7 +55,8 @@ app.post("/api/comodos", async (req, res) => {
     await pool.query(query, [nome]);
     res.status(200).send("OK");
   } catch (err) {
-    console.error(err.message);
+    console.error("--- ERRO DETALHADO ---");
+    console.error(err);
     res.status(500).send("Erro ao salvar dados");
   }
 });
@@ -63,8 +66,9 @@ app.get("/api/comodos", async (req, res) => {
     const result = await pool.query("SELECT * FROM comodos ORDER BY id DESC");
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send(err.message);
+    console.error("--- ERRO DETALHADO ---");
+    console.error(err);
+    res.status(500).send("Erro ao salvar dados");
   }
 });
 
