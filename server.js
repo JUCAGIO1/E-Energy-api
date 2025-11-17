@@ -73,6 +73,33 @@ app.get("/api/comodos", async (req, res) => {
 });
 
 
+app.delete("/api/comodos/:id", async (req, res) => {
+  const { id } = req.params; 
+
+  try {
+    await pool.query("DELETE FROM comodos WHERE id = $1", [id]);
+    res.status(200).send("Cômodo deletado com sucesso");
+  } catch (err) {
+    console.error("--- ERRO AO DELETAR CÔMODO ---");
+    console.error(err);
+    res.status(500).send("Erro ao deletar cômodo");
+  }
+});
+
+
+app.delete("/api/dados/:id", async (req, res) => {
+  const { id } = req.params; 
+
+  try {
+    await pool.query("DELETE FROM leituras WHERE id = $1", [id]);
+    res.status(200).send("Leitura deletada com sucesso");
+  } catch (err) {
+    console.error("--- ERRO AO DELETAR DADO ---");
+    console.error(err);
+    res.status(500).send("Erro ao deletar dado");
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor (API) rodando em http://localhost:${PORT}`);
