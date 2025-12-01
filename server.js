@@ -72,6 +72,48 @@ app.get("/api/comodos", async (req, res) => {
   }
 });
 
+// ---- ROTA PUT (ATUALIZAR) CÔMODOS ----
+// Exemplo: PUT /api/comodos/1
+// Body: { "nome": "Quarto do Casal" }
+app.put("/api/comodos/:id", async (req, res) => {
+  const { id } = req.params; // Pega o ID da URL
+  const { nome } = req.body; // Pega o novo nome do Body
+
+  const query = "UPDATE comodos SET nome = $1 WHERE id = $2";
+  const values = [nome, id];
+
+  try {
+    await pool.query(query, values);
+    res.status(200).send("Cômodo atualizado com sucesso");
+  } catch (err) {
+    console.error("--- ERRO AO ATUALIZAR CÔMODO ---");
+    console.error(err);
+    res.status(500).send("Erro ao atualizar cômodo");
+  }
+});
+
+// ROTA PUT 
+app.put("/api/dados/:id", async (req, res) => {
+  const { id } = req.params;
+  const { corrente, potencia, consumo, custo, rele_estado, comodo_id } = req.body;
+
+  const query = `
+    UPDATE leituras 
+    SET corrente=$1, potencia=$2, consumo=$3, custo=$4, rele_estado=$5, comodo_id=$6
+    WHERE id=$7
+  `;
+  const values = [corrente, potencia, consumo, custo, rele_estado, comodo_id, id];
+
+  try {
+    await pool.query(query, values);
+    res.status(200).send("Leitura atualizada com sucesso");
+  } catch (err) {
+    console.error("--- ERRO AO ATUALIZAR DADO ---");
+    console.error(err);
+    res.status(500).send("Erro ao atualizar dado");
+  }
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
