@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const { Pool } = require("pg");
@@ -7,8 +6,8 @@ const cors = require("cors");
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true })); // Adicionei para garantir compatibilidade
 app.use(bodyParser.json());
-
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -17,7 +16,7 @@ const pool = new Pool({
   },
 });
 
-
+// rota post dados
 app.post("/api/dados", async (req, res) => {
   const { corrente, potencia, consumo, custo, rele_estado, comodo_id } = req.body;
   const query = `
@@ -30,24 +29,23 @@ app.post("/api/dados", async (req, res) => {
     await pool.query(query, values);
     res.status(200).send("OK");
   } catch (err) {
-    console.error("--- ERRO DETALHADO ---");
     console.error(err);
     res.status(500).send("Erro ao salvar dados");
   }
 });
 
+// rota get dados
 app.get("/api/dados", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM leituras ORDER BY id DESC");
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error("--- ERRO DETALHADO ---");
     console.error(err);
-    res.status(500).send("Erro ao salvar dados");
+    res.status(500).send("Erro ao buscar dados");
   }
 });
 
-
+// rota post comodos
 app.post("/api/comodos", async (req, res) => {
   const { nome } = req.body;
   const query = `INSERT INTO comodos (nome) VALUES ($1)`;
@@ -55,44 +53,38 @@ app.post("/api/comodos", async (req, res) => {
     await pool.query(query, [nome]);
     res.status(200).send("OK");
   } catch (err) {
-    console.error("--- ERRO DETALHADO ---");
     console.error(err);
     res.status(500).send("Erro ao salvar dados");
   }
 });
 
+// rota get comodos
 app.get("/api/comodos", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM comodos ORDER BY id DESC");
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error("--- ERRO DETALHADO ---");
     console.error(err);
-    res.status(500).send("Erro ao salvar dados");
+    res.status(500).send("Erro ao buscar dados");
   }
 });
 
-// ---- ROTA PUT (ATUALIZAR) CÔMODOS ----
-// Exemplo: PUT /api/comodos/1
-// Body: { "nome": "Quarto do Casal" }
+// rota put comodos
 app.put("/api/comodos/:id", async (req, res) => {
-  const { id } = req.params; // Pega o ID da URL
-  const { nome } = req.body; // Pega o novo nome do Body
-
+  const { id } = req.params;
+  const { nome } = req.body;
   const query = "UPDATE comodos SET nome = $1 WHERE id = $2";
-  const values = [nome, id];
-
+  
   try {
-    await pool.query(query, values);
+    await pool.query(query, [nome, id]);
     res.status(200).send("Cômodo atualizado com sucesso");
   } catch (err) {
-    console.error("--- ERRO AO ATUALIZAR CÔMODO ---");
     console.error(err);
     res.status(500).send("Erro ao atualizar cômodo");
   }
 });
 
-// ROTA PUT 
+// rota put dados
 app.put("/api/dados/:id", async (req, res) => {
   const { id } = req.params;
   const { corrente, potencia, consumo, custo, rele_estado, comodo_id } = req.body;
@@ -108,35 +100,30 @@ app.put("/api/dados/:id", async (req, res) => {
     await pool.query(query, values);
     res.status(200).send("Leitura atualizada com sucesso");
   } catch (err) {
-    console.error("--- ERRO AO ATUALIZAR DADO ---");
     console.error(err);
     res.status(500).send("Erro ao atualizar dado");
   }
 });
 
-
+// rota delete comodos
 app.delete("/api/comodos/:id", async (req, res) => {
-  const { id } = req.params; 
-
+  const { id } = req.params;
   try {
     await pool.query("DELETE FROM comodos WHERE id = $1", [id]);
     res.status(200).send("Cômodo deletado com sucesso");
   } catch (err) {
-    console.error("--- ERRO AO DELETAR CÔMODO ---");
     console.error(err);
     res.status(500).send("Erro ao deletar cômodo");
   }
 });
 
-
+// rota delete dados
 app.delete("/api/dados/:id", async (req, res) => {
-  const { id } = req.params; 
-
+  const { id } = req.params;
   try {
     await pool.query("DELETE FROM leituras WHERE id = $1", [id]);
     res.status(200).send("Leitura deletada com sucesso");
   } catch (err) {
-    console.error("--- ERRO AO DELETAR DADO ---");
     console.error(err);
     res.status(500).send("Erro ao deletar dado");
   }
